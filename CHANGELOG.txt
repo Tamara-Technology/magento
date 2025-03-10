@@ -1,3 +1,7 @@
+1.12.42
+    New:
+    + Change the checkout widget type
+    + Improve code
 1.12.41
     Bug fixed:
     + Fix the issue paymentDisabled.js is not found in Magento dashboard when disabled Tamara in the configuration

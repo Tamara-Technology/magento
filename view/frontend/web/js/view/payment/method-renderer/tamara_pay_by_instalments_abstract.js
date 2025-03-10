@@ -260,7 +260,7 @@ define(
                         $('.tamara-promo-widget-wrapper.tamara-checkout-page.tamara-v2').empty();
 
                         //append the widget html
-                        let widgetHtml = '<tamara-widget amount="' + self.getGrandTotal() + '" inline-type="3"></tamara-widget>';
+                        let widgetHtml = '<tamara-widget amount="' + self.getGrandTotal() + '" inline-type="6" config=\'{"badgePosition":"","showExtraContent":"full","hidePayInX":false}\'></tamara-widget>';
                         $( ".tamara-promo-widget-wrapper.tamara-checkout-page.tamara-v2" ).each(function() {
                             $(this).append(widgetHtml);
                         });

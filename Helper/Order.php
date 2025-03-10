@@ -70,11 +70,17 @@ class Order extends AbstractData
             $magentoOrderCollection = $this->magentoOrderCollectionFactory->create();
             $salesOrderAddressTable = $magentoOrderCollection->getTable('sales_order_address');
             $magentoOrderCollection->getSelect()
+                ->reset(\Zend_Db_Select::COLUMNS)
+                ->columns(['grand_total', 'status', 'created_at'])
                 ->join(['soa' => $salesOrderAddressTable], 'main_table.entity_id = soa.parent_id',
-                    ['order_created_at' => 'main_table.created_at']
+                    []
                 )
                 ->where('soa.telephone=?', $shippingAddress->getTelephone())->where('soa.address_type=?', $shippingAddress->getAddressType())
-                ->order(['order_created_at ASC']);
+                ->order(['created_at ASC']);
+            $magentoOrderCollection->addFieldToFilter(
+                'status',
+                ['neq' => 'NULL']
+            );
 
             return array_merge($rs, $this->getRiskDataFromConsumerOrders($magentoOrderCollection, $this->getMagentoTimezone($order->getStoreId())));
         } catch (Exception $exception) {
