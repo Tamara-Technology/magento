@@ -1,3 +1,6 @@
+1.12.43
+    New:
+    + Support PAY_BY_FINANCE
 1.12.42
     New:
     + Change the checkout widget type
