@@ -89,7 +89,7 @@ class ScanOrder
             $startTime = gmdate('Y-m-d H:i:s', strtotime($startTime));
             $endTime = gmdate('Y-m-d H:i:s', strtotime($endTime));
         } catch (\Exception $exception) {
-            $this->log("Time format is not support");
+            $this->log(["Time format is not support"]);
             throw $exception;
         }
         $tamaraOrderCollection = $this->tamaraOrderCollectionFactory->create();
