@@ -19,8 +19,8 @@ class EnableWebHook extends \Magento\Framework\App\Config\Value
         \Magento\Framework\ObjectManagerInterface $objectManager,
         TamaraAdapterFactory $tamaraAdapterFactory,
         BaseConfig $tamaraConfig,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         $this->objectManager = $objectManager;

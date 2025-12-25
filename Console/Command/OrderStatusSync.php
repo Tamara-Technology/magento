@@ -56,7 +56,7 @@ class OrderStatusSync extends Command
         \Tamara\Checkout\Helper\AbstractData $helper,
         \Tamara\Checkout\Cron\OrderStatusSync $orderStatusSync,
         BaseConfig $config,
-        string $name = null
+        ?string $name = null
     ) {
         $this->state = $state;
         $this->helper = $helper;

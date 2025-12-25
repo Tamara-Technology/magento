@@ -173,10 +173,10 @@ class Checkout extends AbstractMethod {
         OrderRepositoryInterface $tamaraOrderRepository,
         OrderInterface $tamaraOrder,
         \Tamara\Checkout\Helper\AbstractData $tamaraHelper,
-		AbstractResource $resource = null,
-		AbstractDb $resourceCollection = null,
+		?AbstractResource $resource = null,
+		?AbstractDb $resourceCollection = null,
 		array $data = [],
-		DirectoryHelper $directory = null
+		?DirectoryHelper $directory = null
 	) {
 		parent::__construct(
 			$context,

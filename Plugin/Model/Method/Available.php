@@ -55,7 +55,7 @@ class Available
     public function afterGetAvailableMethods(
         \Magento\Payment\Model\MethodList $subject,
         $availableMethods,
-        \Magento\Quote\Api\Data\CartInterface $quote = null
+        ?\Magento\Quote\Api\Data\CartInterface $quote = null
     ) {
         if (is_null($quote)) {
             return $availableMethods;

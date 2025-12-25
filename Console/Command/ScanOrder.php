@@ -31,7 +31,7 @@ class ScanOrder extends Command
     public function __construct(
         \Magento\Framework\App\State $state,
         \Tamara\Checkout\Helper\AbstractData $helper,
-        string $name = null
+        ?string $name = null
     ) {
         $this->state = $state;
         $this->helper = $helper;
