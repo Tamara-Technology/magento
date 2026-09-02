@@ -37,6 +37,12 @@ class Edit extends \Magento\Backend\App\Action
         $this->modelFactory = $modelFactory;
     }
 
+    /**
+     * Edit Giftcode block
+     *
+     * @return \Magento\Framework\Controller\ResultInterface
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
     public function execute()
     {
         $id = $this->getRequest()->getParam('id');

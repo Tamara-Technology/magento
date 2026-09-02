@@ -25,7 +25,7 @@ class Adapter {
         $paymentCode = $subject->getCode();
         if ($this->tamaraHelper->isTamaraPayment($paymentCode)) {
             $paymentTypes = $this->tamaraHelper->getPaymentTypesForQuote($quote);
-            if (isset($paymentTypes[$paymentCode])) {
+            if (isset($paymentTypes[$paymentCode]['title'])) {
                 return $paymentTypes[$paymentCode]['title'];
             }
         }
@@ -37,6 +37,9 @@ class Adapter {
             return $result;
         }
         $paymentCode = $subject->getCode();
+        if ($paymentCode == \Tamara\Checkout\Gateway\Config\SingleCheckoutConfig::PAYMENT_TYPE_CODE) {
+            return $result;
+        }
         if ($this->tamaraHelper->isTamaraPayment($paymentCode)) {
             return true;
         }

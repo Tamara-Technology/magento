@@ -1,0 +1,60 @@
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label class="label" data-bind="attr: {'for': getCode()}">
+            <img data-bind="attr: {src: tamaraBadgeSrc, alt: $t('Tamara')}" class="payment-icon" /><span data-bind="text: getTitle()"></span>
+            <span class="tamara-single-checkout-description" data-bind="text: getDescription(), visible: getDescription()"></span>
+        </label>
+    </div>
+
+    <div class="payment-method-content">
+        <div class="message error message-error hidden-error-iframe" id="error-iframe-single-checkout"></div>
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="tamara-promo-widget-wrapper tamara-checkout-page tamara-cart-snippet-v2">
+            <tamara-widget type="tamara-card-snippet"></tamara-widget>
+        </div>
+
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+
+        <div class="params">
+            <input type="hidden" id="order-id-single-checkout" value="0" />
+            <input type="hidden" class="render-widget" data-bind="visible: renderWidget()" />
+        </div>
+
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                            click: placeOrder,
+                            attr: {title: $t('Place Order')},
+                            enable: isPlaceOrderActive()
+                        ">
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,7 +2,7 @@
   "name": "tamara-solution/magento",
   "description": "A Magento 2 module that creates tamara payment methods",
   "type": "magento2-module",
-  "version": "2.13.1",
+  "version": "1.13.1",
   "minimum-stability": "stable",
   "license": "OSL-3.0",
   "authors": [
@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": "^7.1|^8.0",
-    "tamara-solution/php-sdk": "^2.0.11 || ^3.0.3"
+    "tamara-solution/php-sdk": "^2.0.11"
   },
   "autoload": {
     "psr-4": {

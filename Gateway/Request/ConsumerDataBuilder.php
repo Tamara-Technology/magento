@@ -33,11 +33,6 @@ class ConsumerDataBuilder implements BuilderInterface
     private $tamaraAddressRepository;
 
     /**
-     * @var \Tamara\Checkout\Helper\AbstractData
-     */
-    private $tamaraHelper;
-
-    /**
      * ConsumerDataBuilder constructor.
      * @param CustomerRepositoryInterface $customerRepository
      * @param AddressRepositoryInterface $addressRepository
@@ -47,15 +42,13 @@ class ConsumerDataBuilder implements BuilderInterface
         CustomerRepositoryInterface $customerRepository,
         AddressRepositoryInterface $addressRepository,
         Logger $logger,
-        \Tamara\Checkout\Model\AddressRepository $tamaraAddressRepository,
-        \Tamara\Checkout\Helper\AbstractData $tamaraHelper
+        \Tamara\Checkout\Model\AddressRepository $tamaraAddressRepository
     )
     {
         $this->customerRepository = $customerRepository;
         $this->addressRepository = $addressRepository;
         $this->logger = $logger;
         $this->tamaraAddressRepository = $tamaraAddressRepository;
-        $this->tamaraHelper = $tamaraHelper;
     }
 
     public function build(array $buildSubject)
@@ -103,11 +96,7 @@ class ConsumerDataBuilder implements BuilderInterface
             $consumer->setFirstName(strval($address->getFirstname()));
             $consumer->setLastName(strval($address->getLastname()));
             $consumer->setEmail(strval($address->getEmail()));
-            $checkoutPhone = $this->tamaraHelper->formatCheckoutPhoneNumber(
-                $address->getTelephone(),
-                $address->getCountryId()
-            );
-            $consumer->setPhoneNumber($checkoutPhone ?? strval($address->getTelephone()));
+            $consumer->setPhoneNumber($address->getTelephone());
             $consumer->setIsFirstOrder($this->isFirstOrder($order->getCustomerId()));
 
         } catch (\Exception $e) {

@@ -15,6 +15,7 @@ use Tamara\Model\Order\Consumer;
 use Tamara\Model\Order\OrderItemCollection;
 use Tamara\Model\Order\OrderItem;
 use Tamara\Model\Order\RiskAssessment;
+use function GuzzleHttp\Psr7\str;
 
 class Available
 {
@@ -32,11 +33,6 @@ class Available
 
     private $tamaraHelper;
 
-    /**
-     * @var \Tamara\Checkout\Model\Helper\ProductHelper
-     */
-    private $productHelper;
-
     public function __construct(
         Logger $logger,
         \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $magentoOrderCollectionFactory,
@@ -44,8 +40,7 @@ class Available
         BaseConfig $config,
         EmailWhiteListRepositoryInterface $emailWhiteListRepository,
         Header $httpHeader,
-        \Tamara\Checkout\Helper\AbstractData $tamaraHelper,
-        \Tamara\Checkout\Model\Helper\ProductHelper $productHelper
+        \Tamara\Checkout\Helper\AbstractData $tamaraHelper
     ) {
         $this->logger = $logger;
         $this->magentoOrderCollectionFactory = $magentoOrderCollectionFactory;
@@ -54,7 +49,6 @@ class Available
         $this->emailWhiteListRepository = $emailWhiteListRepository;
         $this->httpHeader = $httpHeader;
         $this->tamaraHelper = $tamaraHelper;
-        $this->productHelper = $productHelper;
     }
 
 
@@ -80,10 +74,7 @@ class Available
         //Remove Tamara payment for these products
         $excludeProductIds = explode(",", strval($this->config->getExcludeProductIds($quote->getStoreId())));
         $quoteItems = $quote->getItems();
-        if (!is_array($quoteItems)) {
-            return $availableMethods;
-        }
-        foreach ($quoteItems as $item) {
+        foreach (is_array($quoteItems) ? $quoteItems : [] as $item) {
 
             /**
              * @var \Magento\Quote\Model\Quote\Item $item
@@ -247,11 +238,7 @@ class Available
                             new Money(floatval($item->getTaxAmount()), $currencyCode)
                         )->setDiscountAmount(
                             new Money(floatval($item->getDiscountAmount()), $currencyCode)
-                        )->setImageUrl($this->productHelper->getImageFromProductId($item->getProductId()))
-                        ->setItemUrl($this->productHelper->getUrlFromProduct(
-                            $item->getProduct(),
-                            $item->getStoreId()
-                        ));
+                        )->setImageUrl('');
                     $orderItemCollection->append($orderItem);
                 }
             }

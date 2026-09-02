@@ -111,10 +111,6 @@ class Capture extends \Tamara\Checkout\Helper\AbstractData
             $itemTemp['sku'] = $orderItem->getSku();
             $itemTemp['quantity'] = $this->getQty($orderItem);
             $itemTemp['image_url'] = $this->productHelper->getImageFromProductId($orderItem->getProductId());
-            $itemTemp['item_url'] = $this->productHelper->getUrlFromProduct(
-                $orderItem->getProduct(),
-                $orderItem->getStoreId()
-            );
             $data['items'][] = $itemTemp;
         }
 
@@ -176,7 +172,5 @@ class Capture extends \Tamara\Checkout\Helper\AbstractData
         if ($qtyOrdered = intval($item->getQtyOrdered())) {
             return $qtyOrdered;
         }
-
-        return 0;
     }
 }

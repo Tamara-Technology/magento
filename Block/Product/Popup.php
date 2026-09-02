@@ -55,7 +55,7 @@ class Popup extends Template
         return parent::_toHtml();
     }
 
-    protected function isAllowWhitelistEmail(): bool
+    private function isAllowWhitelistEmail(): bool
     {
         $isLogin = $this->customerSession->isLoggedIn();
         if (!$isLogin) {

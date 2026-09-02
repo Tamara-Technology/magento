@@ -69,7 +69,8 @@ class ItemsDataBuilder implements BuilderInterface
                 }
                 $orderItem->setReferenceId($item->getItemId());
                 $orderItem->setImageUrl($this->getImageUrlFromProductId($item->getProductId()));
-                $orderItem->setItemUrl($this->getItemUrlFromOrderItem($item));
+                $itemUrl = $item->getProduct()->setStoreId($item->getStoreId())->getUrlModel()->getUrlInStore($item->getProduct(), ['_escape' => true]);
+                $orderItem->setItemUrl($itemUrl);
                 $orderItemCollection->append($orderItem);
             }
         }
@@ -89,21 +90,7 @@ class ItemsDataBuilder implements BuilderInterface
     private function getImageUrlFromProductId($productId): string
     {
         $product = $this->productRepository->getById($productId);
-        return (string) $this->imageHelper->init($product, 'small_image')
+        return $this->imageHelper->init($product, 'small_image')
             ->setImageFile($product->getImage())->getUrl();
-    }
-
-    private function getItemUrlFromOrderItem(\Magento\Sales\Api\Data\OrderItemInterface $item): string
-    {
-        $product = $item->getProduct();
-        if (!$product) {
-            return '';
-        }
-
-        $url = $product->setStoreId($item->getStoreId())
-            ->getUrlModel()
-            ->getUrlInStore($product, ['_escape' => true]);
-
-        return is_string($url) ? $url : '';
     }
 }

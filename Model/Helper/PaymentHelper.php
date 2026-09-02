@@ -7,6 +7,7 @@ use Tamara\Checkout\Gateway\Config\PayNextMonthConfig;
 use Tamara\Checkout\Gateway\Config\PayNowConfig;
 use Tamara\Checkout\Gateway\Config\PayLaterConfig;
 use Tamara\Checkout\Gateway\Config\InstalmentConfig;
+use Tamara\Checkout\Gateway\Config\SingleCheckoutConfig;
 use Tamara\Checkout\Model\CaptureItem;
 use Tamara\Model\Money;
 use Tamara\Model\Order\OrderItem;
@@ -23,6 +24,7 @@ use Tamara\Response\Payment\CancelResponse;
 class PaymentHelper
 {
     public const ALLOWED_PAYMENTS = [
+        SingleCheckoutConfig::PAYMENT_TYPE_CODE,
         PayLaterConfig::PAYMENT_TYPE_CODE,
         PayNextMonthConfig::PAYMENT_TYPE_CODE,
         PayNowConfig::PAYMENT_TYPE_CODE,
@@ -195,8 +197,6 @@ class PaymentHelper
                 $orderItem->setDiscountAmount(new Money($discountAmountForItem, $data['currency']));
             }
             $orderItem->setQuantity($item->getQtyOrdered());
-            $orderItem->setImageUrl('');
-            $orderItem->setItemUrl('');
             $itemCollection->append($orderItem);
         }
 
@@ -236,8 +236,7 @@ class PaymentHelper
             $orderItem->setDiscountAmount(new Money(floatval($item['discount_amount']), $data['currency']));
         }
         $orderItem->setQuantity($item['quantity']);
-        $orderItem->setImageUrl((string) ($item['image_url'] ?? ''));
-        $orderItem->setItemUrl((string) ($item['item_url'] ?? ''));
+        $orderItem->setImageUrl($item['image_url'] ?? '');
 
         return $orderItem;
     }

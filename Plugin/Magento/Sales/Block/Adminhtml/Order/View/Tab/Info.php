@@ -19,19 +19,19 @@ class Info
     {
         try {
             $order = $subject->getOrder();
-            if (!$this->tamaraHelper->isTamaraPayment($order->getPayment()->getMethod())) {
+            if (!\Tamara\Checkout\Model\Helper\PaymentHelper::isTamaraPayment($order->getPayment()->getMethod())) {
                 return $result;
             }
             $additionalInfo = "";
-            if ($this->tamaraHelper->isSingleCheckoutEnabled($order->getStoreId())) {
-                $tamaraOrder = $this->orderRepository->getTamaraOrderByOrderId($order->getId());
-                if (\Tamara\Checkout\Gateway\Config\InstalmentConfig::isInstallmentsPayment($tamaraOrder->getPaymentType())) {
-                    if (!empty($tamaraOrder->getNumberOfInstallments())) {
-                        $additionalInfo .= ("<br />Number of installments: " . $tamaraOrder->getNumberOfInstallments());
-                    } else {
-                        $additionalInfo .= ("<br />Number of installments: NA");
-                    }
+            $tamaraOrder = $this->orderRepository->getTamaraOrderByOrderId($order->getId());
+            if (\Tamara\Checkout\Gateway\Config\InstalmentConfig::isInstallmentsPayment($tamaraOrder->getPaymentType())) {
+                if (!empty($tamaraOrder->getNumberOfInstallments())) {
+                    $additionalInfo .= ("<br />Number of installments: " . $tamaraOrder->getNumberOfInstallments());
+                } else {
+                    $additionalInfo .= ("<br />Number of installments: NA");
                 }
+            }
+            if (!empty($additionalInfo)) {
                 $additionalInfo .= "<br />";
             }
             return ($result . $additionalInfo);

@@ -79,7 +79,7 @@ class ScanOrder extends Command
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->prepare($input, $output);
         $this->process();

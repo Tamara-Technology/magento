@@ -64,30 +64,30 @@
                     <item name="sortOrder" xsi:type="number">400</item>
                 </item>
             </argument>
-       </field>
-            <!--<field name="created_at">-->
-            <!--<argument name="data" xsi:type="array">-->
-                <!--<item name="config" xsi:type="array">-->
-                    <!--<item name="source" xsi:type="string">whitelist_code</item>-->
-                    <!--<item name="formElement" xsi:type="string">input</item>-->
-                    <!--<item name="dataType" xsi:type="string">text</item>-->
-                    <!--<item name="dataScope" xsi:type="string">created_at</item>-->
-                    <!--<item name="label" xsi:type="string" translate="true">Created At</item>-->
-                    <!--<item name="sortOrder" xsi:type="number">800</item>-->
-                <!--</item>-->
-            <!--</argument>-->
+        </field>
+        <!--<field name="created_at">-->
+        <!--<argument name="data" xsi:type="array">-->
+        <!--<item name="config" xsi:type="array">-->
+        <!--<item name="source" xsi:type="string">whitelist_code</item>-->
+        <!--<item name="formElement" xsi:type="string">input</item>-->
+        <!--<item name="dataType" xsi:type="string">text</item>-->
+        <!--<item name="dataScope" xsi:type="string">created_at</item>-->
+        <!--<item name="label" xsi:type="string" translate="true">Created At</item>-->
+        <!--<item name="sortOrder" xsi:type="number">800</item>-->
+        <!--</item>-->
+        <!--</argument>-->
         <!--</field>-->
         <!--<field name="updated_at">-->
-            <!--<argument name="data" xsi:type="array">-->
-                <!--<item name="config" xsi:type="array">-->
-                    <!--<item name="source" xsi:type="string">whitelist_code</item>-->
-                    <!--<item name="formElement" xsi:type="string">input</item>-->
-                    <!--<item name="dataType" xsi:type="string">text</item>-->
-                    <!--<item name="dataScope" xsi:type="string">updated_at</item>-->
-                    <!--<item name="label" xsi:type="string" translate="true">Update At</item>-->
-                    <!--<item name="sortOrder" xsi:type="number">800</item>-->
-                <!--</item>-->
-            <!--</argument>-->
+        <!--<argument name="data" xsi:type="array">-->
+        <!--<item name="config" xsi:type="array">-->
+        <!--<item name="source" xsi:type="string">whitelist_code</item>-->
+        <!--<item name="formElement" xsi:type="string">input</item>-->
+        <!--<item name="dataType" xsi:type="string">text</item>-->
+        <!--<item name="dataScope" xsi:type="string">updated_at</item>-->
+        <!--<item name="label" xsi:type="string" translate="true">Update At</item>-->
+        <!--<item name="sortOrder" xsi:type="number">800</item>-->
+        <!--</item>-->
+        <!--</argument>-->
         <!--</field>-->
     </fieldset>
 </form>

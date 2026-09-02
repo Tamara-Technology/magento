@@ -10,6 +10,10 @@ define(
         'use strict';
         rendererList.push(
             {
+                type: 'tamara_single_checkout',
+                component: 'Tamara_Checkout/js/view/payment/method-renderer/tamara_single_checkout'
+            },
+            {
                 type: 'tamara_pay_later',
                 component: 'Tamara_Checkout/js/view/payment/method-renderer/tamara_pay_later'
             },

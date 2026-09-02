@@ -127,7 +127,8 @@ class OrderAuthorization extends AbstractData
             // Update Tamara order
             $tamaraOrder->setIsAuthorised(1);
 
-            //set payment method for single checkout
+            // Resolve the placeholder to the payment method selected by Tamara.
+            $currentPaymentMethod = $order->getPayment()->getMethod();
             $numberOfInstallments = $remoteOrder->getInstalments();
             if (!empty($numberOfInstallments)) {
                 $paymentMethod = \Tamara\Checkout\Gateway\Config\InstalmentConfig::PAYMENT_TYPE_CODE;
@@ -142,6 +143,9 @@ class OrderAuthorization extends AbstractData
             $tamaraOrder->setPaymentType($paymentMethod);
             $tamaraOrder->setNumberOfInstallments($numberOfInstallments);
             $this->tamaraOrderRepository->save($tamaraOrder);
+            if ($currentPaymentMethod != $paymentMethod) {
+                $order->getPayment()->setMethod($paymentMethod);
+            }
 
             // Update Magento order
             $authoriseStatus = $this->tamaraConfig->getCheckoutAuthoriseStatus($storeId);
@@ -182,10 +186,9 @@ class OrderAuthorization extends AbstractData
                 } catch (\Exception $exception) {
                     $this->log(["Error when sending authorise notification" => $exception->getMessage()], true);
                 }
-                $order->addCommentToStatusHistory(
+                $order->addStatusHistoryComment(
                     __('Notified customer about order #%1 was authorised.', $order->getIncrementId()),
-                    $this->tamaraConfig->getCheckoutAuthoriseStatus($order->getStoreId()),
-                    false
+                    $this->tamaraConfig->getCheckoutAuthoriseStatus($order->getStoreId())
                 )->setIsCustomerNotified(true);
             }
 
@@ -203,9 +206,8 @@ class OrderAuthorization extends AbstractData
             $this->tamaraTransactionHelper->createTransaction($order, \Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE, $captureComment, $captureTransactionId);
 
             // Update the payment method for Magento order if the status from the remote is different from the current method
-            if ($order->getPayment()->getMethod() != $paymentMethod) {
-
-                //update this after the order model saved
+            if ($currentPaymentMethod != $paymentMethod) {
+                // Keep the payment and sales grid records reconciled after the order save.
                 $adapter->updatePaymentMethodToDbDirectly($order->getId(), $paymentMethod);
             }
 

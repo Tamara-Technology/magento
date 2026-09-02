@@ -6,6 +6,9 @@
         </group>
     </groups>
     <methods>
+        <method name="tamara_single_checkout">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="tamara_pay_later">
             <allow_multiple_address>0</allow_multiple_address>
         </method>

@@ -21,6 +21,20 @@
                 <order_status_sync_enabled>1</order_status_sync_enabled>
                 <order_status_sync_time>-40 minutes</order_status_sync_time>
             </tamara_checkout>
+            <tamara_single_checkout>
+                <active>1</active>
+                <model>Tamara\Checkout\Model\SingleCheckout</model>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <title>Tamara</title>
+                <currency>SAR</currency>
+                <order_history_use_phone>1</order_history_use_phone>
+                <can_authorize>1</can_authorize>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>1</can_use_internal>
+                <sort_order>1</sort_order>
+                <group>tamara</group>
+            </tamara_single_checkout>
             <tamara_pay_later>
                 <active>1</active>
                 <model>TamaraFacade</model>
@@ -68,7 +82,7 @@
                 <model>Tamara\Checkout\Model\PayByInstalments</model>
                 <order_status>pending</order_status>
                 <payment_action>authorize</payment_action>
-                <title>Tamara</title>
+                <title>Split payments without interest or hidden fees with Tamara</title>
                 <currency>SAR</currency>
                 <order_history_use_phone>1</order_history_use_phone>
                 <can_authorize>1</can_authorize>

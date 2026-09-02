@@ -284,6 +284,9 @@ class BaseConfig extends MagentoPaymentConfig
         if ($paymentMethod == \Tamara\Checkout\Gateway\Config\PayNowConfig::PAYMENT_TYPE_CODE) {
             return \Tamara\Checkout\Gateway\Config\PayNowConfig::PAY_NOW;
         }
+        if ($paymentMethod == \Tamara\Checkout\Gateway\Config\SingleCheckoutConfig::PAYMENT_TYPE_CODE) {
+            return \Tamara\Checkout\Gateway\Config\InstalmentConfig::PAY_BY_INSTALMENTS;
+        }
         throw new \InvalidArgumentException("Tamara payment method is not supported");
     }
 

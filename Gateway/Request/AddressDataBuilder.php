@@ -16,18 +16,11 @@ class AddressDataBuilder implements BuilderInterface
 
     private $tamaraAddressRepository;
 
-    /**
-     * @var \Tamara\Checkout\Helper\AbstractData
-     */
-    private $tamaraHelper;
-
     public function __construct(
-        \Tamara\Checkout\Model\AddressRepository $tamaraAddressRepository,
-        \Tamara\Checkout\Helper\AbstractData $tamaraHelper
+        \Tamara\Checkout\Model\AddressRepository $tamaraAddressRepository
     )
     {
         $this->tamaraAddressRepository = $tamaraAddressRepository;
-        $this->tamaraHelper = $tamaraHelper;
     }
 
     public function build(array $buildSubject): array
@@ -87,10 +80,7 @@ class AddressDataBuilder implements BuilderInterface
         $shipping->setRegion($regionShipping);
         $shippingAddressCity = empty($shippingAddress->getCity()) ? self::EMPTY : $shippingAddress->getCity();
         $shipping->setCity($shippingAddressCity);
-        $shippingAddressPhoneNumber = empty($shippingAddress->getTelephone()) ? self::EMPTY : (
-            $this->tamaraHelper->formatCheckoutPhoneNumber($shippingAddress->getTelephone(), $shippingAddress->getCountryId())
-            ?? $shippingAddress->getTelephone()
-        );
+        $shippingAddressPhoneNumber = empty($shippingAddress->getTelephone()) ? self::EMPTY : $shippingAddress->getTelephone();
         $shipping->setPhoneNumber($shippingAddressPhoneNumber);
         $shippingAddressCountryCode = empty($shippingAddress->getCountryId()) ? self::EMPTY : $shippingAddress->getCountryId();
         $shipping->setCountryCode($shippingAddressCountryCode);
@@ -104,11 +94,7 @@ class AddressDataBuilder implements BuilderInterface
         $billing->setRegion($regionBilling);
         $billingAddressCity = empty($billingAddress->getCity()) ? self::EMPTY : $billingAddress->getCity();
         $billing->setCity($billingAddressCity);
-        $billingPhone = $this->tamaraHelper->formatCheckoutPhoneNumber(
-            $billingAddress->getTelephone(),
-            $billingAddress->getCountryId()
-        );
-        $billing->setPhoneNumber($billingPhone ?? strval($billingAddress->getTelephone()));
+        $billing->setPhoneNumber($billingAddress->getTelephone());
         $billing->setCountryCode($billingAddress->getCountryId());
         $billing->setPostalCode($billingAddress->getPostcode());
 

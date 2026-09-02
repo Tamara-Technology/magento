@@ -167,31 +167,6 @@ define(
                 return (window.checkoutConfig.payment.tamara.locale_code).includes("ar_");
             },
 
-            getCheckoutCountry: function () {
-                var shipping = quote.shippingAddress();
-                var billing = quote.billingAddress();
-                if (shipping && shipping.countryId) {
-                    return shipping.countryId;
-                }
-                if (billing && billing.countryId) {
-                    return billing.countryId;
-                }
-                return window.checkoutConfig.payment.tamara.country_code;
-            },
-
-            getTitle: function () {
-                return this.isArabicLanguage() ? 'تمارا' : 'Tamara';
-            },
-
-            getDescription: function () {
-                if (this.getCheckoutCountry() === 'SA') {
-                    return this.isArabicLanguage()
-                        ? 'دفعات شهرية. متوافقة مع الشريعة'
-                        : 'Monthly Payments. Sharia Compliant.';
-                }
-                return this.isArabicLanguage() ? 'دفعات شهرية' : 'Monthly Payments.';
-            },
-
             getPaymentLanguage: function () {
                 if (this.isArabicLanguage()) {
                     return 'ar';
@@ -274,7 +249,7 @@ define(
 
             renderWidgetV2: function () {
                 window.tamaraWidgetConfig = {
-                    "country" : this.getCheckoutCountry(),
+                    "country" : window.checkoutConfig.payment.tamara.country_code,
                     "lang": window.checkoutConfig.payment.tamara.language,
                     "publicKey": window.checkoutConfig.payment.tamara.public_key
                 }
