@@ -20,7 +20,7 @@ class AuthorizeCommand implements CommandInterface
     const STATUS_PENDING = 'pending';
 
     /**
-     * @var \Tamara\Checkout\Gateway\Config\BaseConfig
+     * @var \Tamara\Checkout\Gateway\Config\BaseConfig 
      */
     protected $config;
 
@@ -135,7 +135,7 @@ class AuthorizeCommand implements CommandInterface
             $order->setState(Order::STATE_NEW)->setStatus($this->config->getCheckoutOrderCreateStatus($orderResult->getStoreId()));
 
             // Add comment to order history
-            $order->addStatusHistoryComment(__('Tamara - waiting for Tamara checkout session to be created'), false);
+            $order->addCommentToStatusHistory(__('Tamara - waiting for Tamara checkout session to be created'), false, false);
         } catch (Exception $e) {
             $orderResult->setState(Order::STATE_CANCELED)->setStatus(Order::STATE_CANCELED);
             $this->orderRepository->save($orderResult);

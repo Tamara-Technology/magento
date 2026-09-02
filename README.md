@@ -1,16 +1,24 @@
 # Available Versions
-* Tamara payment for Magento 2.2
-* [Tamara payment for Magento 2.3 & 2.4](https://github.com/tamara-solution/magento/tree/v23)
-# Tamara extension for Magento 2.2
+* Tamara payment for Magento 2.3 & 2.4
+* [Tamara payment for Magento 2.2](https://github.com/tamara-solution/magento)
+# Tamara extension for Magento 2.3 & 2.4
 
 This extension allows you to use tamara as a payment gateway in your Magento store.
 
 # Installation steps
 
 ### Installation Using Composer (Recommended)
-```bash
-composer require tamara-solution/magento:~1.0
 
+If you are using PHP 8.4+
+```bash
+composer require tamara-solution/magento:^2.13.1 tamara-solution/php-sdk:^3.0.3
+```
+otherwise
+```bash
+composer require tamara-solution/magento:^2.13.1 tamara-solution/php-sdk:^2.0.11
+```
+
+```bash
 php bin/magento module:enable Tamara_Checkout
 
 php bin/magento setup:upgrade

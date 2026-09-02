@@ -5,11 +5,15 @@ namespace Tamara\Checkout\Ui\DataProvider\Whitelist\Modifier;
 use Magento\Ui\DataProvider\Modifier\ModifierInterface;
 use Magento\Framework\UrlInterface;
 
+
 class Template implements ModifierInterface
 {
+
     protected $coreRegistry;
 
+
     protected $urlBuilder;
+
 
     public function __construct(
         \Magento\Framework\Registry $coreRegistry,

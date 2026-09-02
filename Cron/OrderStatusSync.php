@@ -302,7 +302,7 @@ class OrderStatusSync
             } else {
                 $order->setState(\Magento\Sales\Model\Order::STATE_CANCELED)->setStatus($this->config->getCheckoutExpireStatus($order->getStoreId()));
             }
-            $order->addStatusHistoryComment(__('Tamara - Order was automatically cancelled because it '. $remoteOrderStatus . ' in Tamara.'), false);
+            $order->addCommentToStatusHistory(__('Tamara - Order was automatically cancelled because it '. $remoteOrderStatus . ' in Tamara.'), false, false);
             $this->orderRepository->save($order);
 
             $this->helper->log(["Cancelled ".  $remoteOrderStatus . " order " . $order->getId()]);

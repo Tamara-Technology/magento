@@ -19,6 +19,7 @@ use Tamara\Exception\RequestException;
 use Tamara\Model\Checkout\PaymentType;
 use Tamara\Notification\NotificationService;
 use Tamara\Request\Checkout\CreateCheckoutRequest;
+use Tamara\Model\Webhook;
 use Tamara\Request\Webhook\RegisterWebhookRequest;
 use Tamara\Request\Webhook\RemoveWebhookRequest;
 use Tamara\Response\Checkout\CreateCheckoutResponse;
@@ -28,6 +29,7 @@ use Tamara\Response\Checkout\GetPaymentTypesResponse;
 class TamaraAdapter
 {
     const API_REQUEST_TIMEOUT = 30; //in seconds
+    private const HTTP_CONFLICT = 409;
     const DISABLE_TAMARA_IDENTIFIER = "DISABLE_TAMARA";
     const DISABLE_TAMARA_CACHE_LIFE_TIME = 900; //15 minutes
 
@@ -343,7 +345,7 @@ class TamaraAdapter
                         $data['total_amount']
                     );
                     $captureComment = __('Tamara - order was captured. The captured amount is %1. Capture id is %2', $capturedAmount, $response->getCaptureId());
-                    $order->addStatusHistoryComment($captureComment, false);
+                    $order->addCommentToStatusHistory($captureComment, false, false);
                     $this->mageRepository->save($order);
 
                     if ($this->baseConfig->getAutoGenerateInvoice($order->getStoreId()) == \Tamara\Checkout\Model\Config\Source\AutomaticallyInvoice::GENERATE_AFTER_CAPTURE) {
@@ -413,9 +415,9 @@ class TamaraAdapter
                     } catch (\Exception $exception) {
                         $this->logger->debug(["Tamara - Error when sending authorise notification" => $exception->getMessage()], null, true);
                     }
-                    $magentoOrder->addStatusHistoryComment(
+                    $magentoOrder->addCommentToStatusHistory(
                         __('Notified customer about order #%1 was refunded.', $magentoOrder->getIncrementId()),
-                        $this->baseConfig->getOrderStatusShouldBeRefunded($magentoOrder->getStoreId())
+                        $this->baseConfig->getOrderStatusShouldBeRefunded($magentoOrder->getStoreId()), false
                     )->setIsCustomerNotified(true)->save();
                 }
             } else {
@@ -450,7 +452,7 @@ class TamaraAdapter
                     $data['total_amount']
                 );
                 $comment = __('Tamara - order was canceled, canceled amount is ' . $canceledAmount);
-                $mageOrder->addStatusHistoryComment(__($comment), false);
+                $mageOrder->addCommentToStatusHistory(__($comment), false, false);
                 $this->mageRepository->save($mageOrder);
                 if (in_array(\Tamara\Checkout\Model\Config\Source\EmailTo\Options::SEND_EMAIL_WHEN_CANCEL_ORDER, $this->baseConfig->getSendEmailWhen($mageOrder->getStoreId()))) {
                     if (!empty($data['is_authorised'])) {
@@ -459,9 +461,9 @@ class TamaraAdapter
                         } catch (\Exception $exception) {
                             $this->logger->debug(["Tamara - Error when sending authorise notification" => $exception->getMessage()], null, true);
                         }
-                        $mageOrder->addStatusHistoryComment(
+                        $mageOrder->addCommentToStatusHistory(
                             __('Notified customer about order #%1 was canceled.', $mageOrder->getIncrementId()),
-                            $this->baseConfig->getCheckoutCancelStatus($mageOrder->getStoreId())
+                            $this->baseConfig->getCheckoutCancelStatus($mageOrder->getStoreId()), false
                         )->setIsCustomerNotified(true)->save();
                     }
                 }
@@ -506,18 +508,22 @@ class TamaraAdapter
             $response = $this->client->registerWebhook($request);
 
             if (!$response->isSuccess()) {
+                if ($this->isWebhookAlreadyRegistered($response)) {
+                    $this->logger->debug(
+                        ["Tamara - Webhook is already registered on Tamara" => $response->getContent()]
+                    );
+                    $existingWebhookId = $this->extractWebhookIdFromResponse($response);
+                    if ($existingWebhookId !== '') {
+                        $this->saveWebhookId($existingWebhookId, $scope, $scopeId);
+                    }
+
+                    return;
+                }
                 $this->logger->debug(["Tamara - Failed response when register a webhook" => $response->getContent()]);
                 throw new IntegrationException(__($response->getMessage()));
             }
 
-            $webhookId = $response->getWebhookId();
-
-            $this->resourceConfig->saveConfig(
-                'payment/tamara_checkout/webhook_id',
-                $webhookId,
-                $scope,
-                $scopeId
-            );
+            $this->saveWebhookId($response->getWebhookId(), $scope, $scopeId);
         } catch (\Exception $exception) {
             $this->logger->debug(["Tamara - Error when register webhook" => $exception->getMessage()], null, true);
 
@@ -525,6 +531,66 @@ class TamaraAdapter
         }
 
         $this->logger->debug(['Tamara - End of register webhook']);
+    }
+
+    /**
+     * Tamara rejects a second registration for the same URL. That is not a
+     * misconfiguration, so the admin save should not fail because of it.
+     *
+     * @param \Tamara\Response\Webhook\RegisterWebhookResponse $response
+     */
+    private function isWebhookAlreadyRegistered($response): bool
+    {
+        if ($response->getStatusCode() === self::HTTP_CONFLICT) {
+            return true;
+        }
+
+        $content = strtolower(strval($response->getMessage()) . ' ' . $response->getContent());
+
+        return strpos($content, 'already') !== false;
+    }
+
+    /**
+     * Failed register responses skip SDK parse(), so pull webhook_id from the
+     * raw body when Tamara reports the URL is already registered.
+     *
+     * @param \Tamara\Response\Webhook\RegisterWebhookResponse $response
+     */
+    private function extractWebhookIdFromResponse($response): string
+    {
+        $decoded = json_decode((string) $response->getContent(), true);
+        if (!is_array($decoded)) {
+            return '';
+        }
+
+        return $this->findWebhookIdInData($decoded);
+    }
+
+    private function findWebhookIdInData(array $data): string
+    {
+        if (!empty($data[Webhook::WEBHOOK_ID]) && is_string($data[Webhook::WEBHOOK_ID])) {
+            return $data[Webhook::WEBHOOK_ID];
+        }
+        foreach ($data as $value) {
+            if (is_array($value)) {
+                $found = $this->findWebhookIdInData($value);
+                if ($found !== '') {
+                    return $found;
+                }
+            }
+        }
+
+        return '';
+    }
+
+    private function saveWebhookId($webhookId, $scope, $scopeId): void
+    {
+        $this->resourceConfig->saveConfig(
+            'payment/tamara_checkout/webhook_id',
+            $webhookId,
+            $scope,
+            $scopeId
+        );
     }
 
     public function deleteWebhook($webhookId): void
@@ -597,7 +663,7 @@ class TamaraAdapter
                 $mageOrder->setState(Order::STATE_CANCELED)->setStatus($this->baseConfig->getCheckoutExpireStatus($mageOrder->getStoreId()));
             }
             $comment = sprintf('Tamara - order was %s by webhook', $eventType);
-            $mageOrder->addStatusHistoryComment(__($comment), false);
+            $mageOrder->addCommentToStatusHistory(__($comment), false, false);
             $mageOrder->getResource()->save($mageOrder);
 
         } catch (\Exception $exception) {

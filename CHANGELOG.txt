@@ -1,57 +1,74 @@
-1.12.47
+2.13.1
+    New:
+    + Use the Tamara PHP SDK Precheck API to decide checkout eligibility
+    + Show only Tamara single checkout when Precheck is eligible
+    + Country-specific payment title and description for KSA and other countries
+    Bug fixed:
+    + Omit payment_type and instalments when creating a single-checkout session
+    + Normalize checkout phone numbers to E.164 before calling Tamara
+    + Always set OrderItem item_url and image_url as strings (SDK 3 getItemUrl TypeError)
+    + Keep customer Precheck eligibility out of the store-wide single-checkout cache
+    + Use a fresh database transaction for each generated invoice
+    + Persist webhook_id when Tamara reports the webhook is already registered
+    + Fix the fatal error on the cart widget when the email whitelist is enabled
+    + Declare the whitelist factory on the CSV import controller (PHP 8.2 dynamic property)
+2.11.47
     New:
     + Compatible PHP 8.4
-1.12.45
+2.11.46
+    New:
+    + Add a license file
+2.11.45
     New:
     + Support Split payments greater than 12 or other payment types
     + Compatible with Symfony Console Command (latest version) for ScanOrder command
     + No longer support the widget V1
-1.12.44
+2.11.44
     New:
     + Update code to create Tamara checkout session before use (not create during Magento order creation)
     + Add a cronjob to authorise approved orders and cancel expired/declined orders automatically
-    + Add a license file
-1.12.43
+2.11.43
     New:
     + Support PAY_BY_FINANCE
-1.12.42
+2.11.42
     New:
     + Change the checkout widget type
     + Improve code
-1.12.41
+2.11.41
     Bug fixed:
     + Fix the issue paymentDisabled.js is not found in Magento dashboard when disabled Tamara in the configuration
-1.12.40
+2.11.40
     New:
+    + Compatible with Magento 2.4.6 and 2.4.7
     + Update default config for use_magento_success_page
-1.12.39
+2.11.39
     New:
     + Improve code
     Bug fixed:
-    + Fix an issue wrong price on the product widget of Arabic language in version 1.12.37
-1.12.37
+    + Fix an issue wrong price on the product widget of Arabic language in version 2.11.37
+2.11.37
     New:
     + Improve code
-1.12.36
+2.11.36
     New:
     + Improve code
-1.12.35
+2.11.35
     New:
     + Improve code
-1.12.34
+2.11.34
     New:
     + Improve code
     Bug fixed:
     + Fix an issue when creating a checkout session if the customer's date of birth is not in the correct format
-1.12.33
+2.11.33
     Bug fixed:
     + Fix the issue payment method is not updated after the customer purchases with single checkout
-1.12.32
+2.11.32
     New:
     + Improve code
     Bug fixed:
     + Fix the issue "Requested order doesn't exist" when viewing an order in Magento dashboard
-1.12.31
+2.11.31
     New:
     + Add risk assessment data to order data
     + Compatible with Magento 2.4.6
@@ -60,13 +77,13 @@
     + Add some improvements
     Bug fixed:
     + Fix the wrong amount on widgets in case complex tax
-1.12.30
+2.11.30
     New:
     + Add Pay in full widget
-1.12.29
+2.11.29
     New:
     + Add item URL to the item data
-1.12.28
+2.11.28
     New:
     + Remove payment types configuration in the admin
     + Use credit-pre-check on the checkout page
@@ -75,21 +92,21 @@
     + New template for payment methods
     + Support to authorize orders on the checkout success page
     + Add Oman country
-1.12.27
+2.11.27
     New:
     + Change credit pre check label
     + Improve code - get payment types timeout
     + Add new expired status for the order that was expired by webhook
-1.12.26
+2.11.26
     New:
     + Add Pay now
     + Move widget to below product price
     + Make the plugin compatible with PHP 8
-1.12.25
+2.11.25
     New:
     + Add post credit check API
     + Convert the discount amount to a positive number before sending it to Tamara
-1.12.24
+2.11.24
     New:
     + Add new method pay next month
     + Add new method pay in 2 installments
@@ -103,72 +120,73 @@
     + Add Tamara logo to method title
     + Update new payment method title on checkout page
     + Don't allow editing of payment method title from admin page
-    + Improve code
-1.12.23
+2.11.23
     New:
     + Update new logos
-1.12.22
+2.11.22
     New:
     + Return merchant's URLs from API same as checkout info
     + Add order id into the request from FE when creating Tamara order
-1.12.21
+2.11.21
     New:
     + Add new config for trigger events
-1.12.20
+2.11.20
     New:
     + Set total paid for order after authorise by Tamara
     + Add more logs
     + Use full path for return tag in REST API to avoid issue with Swagger
-1.12.19
+2.11.19
     New:
     + Doesn't process webhook if the order is authorised
     + Improve code
-1.12.18
+    Bug fixed:
+    + Fix an issue pair between currency - country
+2.11.18
     New:
     + Supports multiple currencies per country
     + Skip move to processing when create order
-1.12.17
+2.11.17
     Bug fixed:
     + Fix an issue when get config with scope website if default config is null
-1.12.16
+2.11.16
     New:
     + Support partial cancel, partial refund from console
     + Hide Tamara payment when create order from admin dashboard
     + Remove redundant code
     Bug fixed:
     + Fix an issue related to router that makes 404 not found with Shop by brand url
-1.12.15
+2.11.15
     New:
     + Support partial cancel when create partial refund by Creditmemo
-1.12.14
+2.11.14
     Bug fixed:
     + Fixed an issue of partial refund
-1.12.13
+2.11.13
     New
     + Updated new logo
-1.12.12
-    New:
-    + Compatible with more version Magento 2.2
-1.12.11
+2.11.12
+    New
+    + Compatible with Magento 2.3.0
+2.11.11
     Bug fixed:
     + Fix an issue when use multiple merchants
-1.12.10
+2.11.10
     New:
     + Supported Kuwait, Bahrain, Qatar
     Bug fixed:
     + Fix an issue get API url
-1.12.9
+2.11.9
     New:
     + Redirect to success / cancel/ failure url after go back to Magento site
     + Support running multiple merchant account
-1.12.6
+2.11.6
     New:
     + Add multiple installments payments
     + Remove get Tamara config api
     + Refactor code
     + Add config to display warning at checkout if total amount is under / over Tamara limit
     + Add console command to cancel abandoned orders
-1.12.5
+2.11.5
     Bugs fixed:
     + Fixed success page template
     + Fixed a bug when get store config data
@@ -183,19 +201,21 @@
     + Remove Tamara about link config
     + Remove Tamara login link config
     + Add return url config after checkout
-1.12.4
+2.11.4
     Bugs fixed:
     + Fixed get title of payment type
     New:
     + Refactor code upgrade data
-1.12.3
+2.11.3
     New:
     + Revert merchant url pattern
     + Remove redundant code and di
     + Add try catch of email sending exception
-1.12.2
+2.11.2
     Bugs fixed:
     + Fixed an issue revert order when cancel order by webhook
     + Fixed bug sync payment types between Tamara and local site
     + Some minors fixed
+    New:
+    + Compatible Magento 2.4.2
 

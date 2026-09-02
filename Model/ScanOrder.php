@@ -101,7 +101,6 @@ class ScanOrder
         }
 
         if (count($orderIds)) {
-
             //scan capture
             $magentoOrderCollection = $this->getMagentoOrderCollection($orderIds, $this->config->getOrderStatusShouldBeCaptured());
             $orderIdsFiltered = $this->getOrderIdsFromCollection($magentoOrderCollection);

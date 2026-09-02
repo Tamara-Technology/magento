@@ -3,8 +3,10 @@
 namespace Tamara\Checkout\Gateway\Request;
 
 use Magento\Framework\App\ProductMetadata;
+use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Tamara\Checkout\Model\Helper\LocaleHelper;
 use Tamara\Model\Money;
 use Tamara\Model\Order\Discount;
@@ -37,7 +39,6 @@ class CommonDataBuilder implements BuilderInterface
     protected $orderHelper;
 
     /**
-     * CommonDataBuilder constructor.
      * @param ProductMetadata $productMetaData
      */
     public function __construct(ProductMetadata $productMetaData,
@@ -50,7 +51,7 @@ class CommonDataBuilder implements BuilderInterface
         $this->orderHelper = $orderHelper;
     }
 
-    public function build(array $buildSubject)
+    public function build(array $buildSubject): array
     {
         if (!isset($buildSubject['order'])
             || !$buildSubject['order'] instanceof OrderInterface
@@ -62,8 +63,6 @@ class CommonDataBuilder implements BuilderInterface
         $order = $buildSubject['order'];
         $currencyCode = $buildSubject['order_currency_code'];
         $phoneVerified = $buildSubject['phone_verified'];
-        $numberOfInstallments = null;
-
         $magentoDiscountAmount = abs(floatval($order->getDiscountAmount()));
         if ($magentoDiscountAmount < 0.00000001) {
             $discountName = "";
@@ -76,11 +75,10 @@ class CommonDataBuilder implements BuilderInterface
             }
         }
         $discountAmount = new Discount($discountName, new Money($magentoDiscountAmount, $currencyCode));
-        $paymentMethod = $order->getPayment()->getMethod();
-        $paymentType = \Tamara\Checkout\Gateway\Config\BaseConfig::convertPaymentMethodFromMagentoToTamara($paymentMethod);
-        if ($paymentType == \Tamara\Checkout\Gateway\Config\InstalmentConfig::PAY_BY_INSTALMENTS) {
-            $numberOfInstallments = \Tamara\Checkout\Gateway\Config\InstalmentConfig::getInstallmentsNumberByPaymentCode($paymentMethod);
-        }
+        // Precheck exposes only Tamara's single-checkout option. Eligibility is
+        // customer-specific and must not be read from the store-wide cache.
+        $paymentType = '';
+        $numberOfInstallments = null;
 
         return [
             self::ORDER_ID => $order->getEntityId(),

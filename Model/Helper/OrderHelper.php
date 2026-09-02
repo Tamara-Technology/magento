@@ -7,13 +7,12 @@ use Tamara\Checkout\Gateway\Request\CommonDataBuilder;
 use Tamara\Checkout\Gateway\Request\ConsumerDataBuilder;
 use Tamara\Checkout\Gateway\Request\ItemsDataBuilder;
 use Tamara\Checkout\Gateway\Request\MerchantUrlDataBuilder;
-use Tamara\Model\Order\Order;
 
 class OrderHelper
 {
-    public static function createTamaraOrderFromArray(array $data): Order
+    public static function createTamaraOrderFromArray(array $data): CheckoutOrder
     {
-        $order = new Order();
+        $order = new CheckoutOrder();
 
         $order->setOrderReferenceId($data[CommonDataBuilder::ORDER_REFERENCE_ID]);
         $order->setLocale($data[CommonDataBuilder::LOCALE]);
@@ -23,7 +22,7 @@ class OrderHelper
         $order->setShippingAmount($data[CommonDataBuilder::SHIPPING_AMOUNT]);
         $order->setDiscount($data[CommonDataBuilder::DISCOUNT_AMOUNT]);
         $order->setCountryCode($data[CommonDataBuilder::COUNTRY_CODE]);
-        $order->setPaymentType($data[CommonDataBuilder::PAYMENT_TYPE]);
+        $order->setPaymentType($data[CommonDataBuilder::PAYMENT_TYPE] ?? '');
         $order->setPlatform($data[CommonDataBuilder::PLATFORM]);
         $order->setDescription($data[CommonDataBuilder::DESCRIPTION]);
         $order->setShippingAddress($data[AddressDataBuilder::SHIPPING_ADDRESS]);
@@ -32,7 +31,7 @@ class OrderHelper
         $order->setConsumer($data[ConsumerDataBuilder::CONSUMER]);
         $order->setItems($data[ItemsDataBuilder::ITEMS]);
         $order->setRiskAssessment(new \Tamara\Model\Order\RiskAssessment($data[CommonDataBuilder::RISK_ASSESSMENT]));
-        $order->setInstalments($data[\Tamara\Checkout\Gateway\Request\CommonDataBuilder::NUMBER_OF_INSTALLMENTS]);
+        $order->setInstalments($data[CommonDataBuilder::NUMBER_OF_INSTALLMENTS] ?? null);
 
         return $order;
     }

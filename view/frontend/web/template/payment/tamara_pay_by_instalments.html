@@ -11,7 +11,11 @@
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label class="label" data-bind="attr: {'for': getCode()}">
-            <img data-bind="attr: {src: tamaraBadgeSrc, alt: $t('Tamara')}" class="payment-icon" /><span data-bind="text: getTitle()"></span>
+            <img data-bind="attr: {src: tamaraBadgeSrc, alt: $t('Tamara')}" class="payment-icon" />
+            <span class="tamara-payment-copy">
+                <span class="tamara-payment-title" data-bind="text: getTitle()"></span>
+                <span class="tamara-payment-description" data-bind="text: getDescription()"></span>
+            </span>
         </label>
     </div>
 

@@ -8,6 +8,8 @@ use Magento\Backend\App\Action;
 class ProcessImport extends \Magento\Backend\App\Action
 {
 
+    protected $whitelistFactory;
+
     protected $csv;
 
     protected $authSession;
@@ -91,5 +93,9 @@ class ProcessImport extends \Magento\Backend\App\Action
                 return $resultRedirect->setPath('*/*/import');
             }
         }
+
+        $this->messageManager->addErrorMessage(__('Please choose a CSV file'));
+
+        return $resultRedirect->setPath('*/*/import');
     }
 }

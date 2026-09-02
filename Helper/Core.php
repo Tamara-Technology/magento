@@ -35,8 +35,8 @@ class Core extends AbstractHelper
         ObjectManagerInterface $objectManager,
         StoreManagerInterface $storeManager
     ) {
-        $this->objectManager = $objectManager ?? \Magento\Framework\App\ObjectManager::getInstance();
-        $this->storeManager = $storeManager ?? $this->getObject(StoreManagerInterface::class);
+        $this->objectManager = $objectManager;
+        $this->storeManager = $storeManager;
 
         parent::__construct($context);
     }
@@ -187,8 +187,7 @@ class Core extends AbstractHelper
         $componentRegistrar = $this->getObject(ComponentRegistrarInterface::class);
         $path = $componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
 
-        // An empty $type means it's getting the directory of the module itself.
-        if (empty($type) && !isset($path)) {
+        if ($path === null) {
             // Note: do not throw \LogicException, as it would break backwards-compatibility.
             throw new \InvalidArgumentException("Module '$moduleName' is not correctly registered.");
         }

@@ -2,9 +2,10 @@
 
 namespace Tamara\Checkout\Controller\Payment;
 
-use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Checkout\Model\Session;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
@@ -111,7 +112,7 @@ class Cancel extends Action
                     $this->coreRegistry->register("skip_tamara_cancel", true);
                     $this->orderManagement->cancel($order->getEntityId());
                     $order->setState(Order::STATE_CANCELED)->setStatus($this->config->getCheckoutCancelStatus($order->getStoreId()));
-                    $order->addStatusHistoryComment(__('Tamara - order was canceled by the customer'), false);
+                    $order->addCommentToStatusHistory(__('Tamara - order was canceled by the customer'), false, false);
                     $order->getResource()->save($order);
                 }
             } catch (\Exception $e) {

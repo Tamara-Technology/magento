@@ -35,18 +35,25 @@ class ConfigProvider implements ConfigProviderInterface
      */
     private $baseConfig;
 
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    private $checkoutSession;
+
     public function __construct(
         \Magento\Framework\Locale\Resolver $locale,
         PayLaterConfig $payLaterConfig,
         InstalmentConfig $instalmentConfig,
         BaseConfig $baseConfig,
-        \Tamara\Checkout\Helper\AbstractData $tamaraHelper
+        \Tamara\Checkout\Helper\AbstractData $tamaraHelper,
+        \Magento\Checkout\Model\Session $checkoutSession
     ) {
         $this->locale = $locale;
         $this->payLaterConfig = $payLaterConfig;
         $this->instalmentConfig = $instalmentConfig;
         $this->baseConfig = $baseConfig;
         $this->tamaraHelper = $tamaraHelper;
+        $this->checkoutSession = $checkoutSession;
     }
 
     /**
@@ -68,7 +75,22 @@ class ConfigProvider implements ConfigProviderInterface
                 'payment' => $config
             ];
         }
-        $countryCode = \Tamara\Checkout\Gateway\Validator\CountryValidator::CURRENCIES_COUNTRIES_ALLOWED[$storeCurrency];
+        $countryCode = (string) $this->tamaraHelper->getStoreCountryCode($storeId);
+        if ($countryCode === '' && isset(\Tamara\Checkout\Gateway\Validator\CountryValidator::CURRENCIES_COUNTRIES_ALLOWED[$storeCurrency])) {
+            $countryCode = \Tamara\Checkout\Gateway\Validator\CountryValidator::CURRENCIES_COUNTRIES_ALLOWED[$storeCurrency];
+        }
+        $paymentTypes = $this->tamaraHelper->getPaymentTypes($countryCode, $storeCurrency, $storeId);
+        $isSingleCheckoutEnabled = true;
+        try {
+            $quote = $this->checkoutSession->getQuote();
+            if ($quote && $quote->getId()) {
+                $countryCode = $this->tamaraHelper->getCheckoutCountryCode($quote, $storeId);
+                $paymentTypes = $this->tamaraHelper->getPaymentTypesForQuote($quote);
+                $isSingleCheckoutEnabled = $this->tamaraHelper->isSingleCheckoutEnabled($storeId);
+            }
+        } catch (\Exception $exception) {
+            $this->tamaraHelper->log(["Tamara checkout config" => $exception->getMessage()]);
+        }
         $config = [
             'tamara' => [
                 'use_magento_checkout_success' => $this->baseConfig->useMagentoCheckoutSuccessPage(),
@@ -78,12 +100,11 @@ class ConfigProvider implements ConfigProviderInterface
                 'currency_code' => $storeCurrency,
                 'language' => substr($this->getLocale(), 0, 2),
                 'enable_credit_pre_check' => true,
-                'is_single_checkout_enabled' => $this->tamaraHelper->isSingleCheckoutEnabled($storeId),
+                'is_single_checkout_enabled' => $isSingleCheckoutEnabled,
                 'widget_version' => $this->tamaraHelper->getWidgetVersion(),
-                'payment_types' => []
+                'payment_types' => $paymentTypes
             ]
         ];
-        $config['tamara']['payment_types'] = $this->tamaraHelper->getPaymentTypes($countryCode, $storeCurrency, $storeId);
         return [
             'payment' => $config
         ];

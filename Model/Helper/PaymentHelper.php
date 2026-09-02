@@ -195,6 +195,8 @@ class PaymentHelper
                 $orderItem->setDiscountAmount(new Money($discountAmountForItem, $data['currency']));
             }
             $orderItem->setQuantity($item->getQtyOrdered());
+            $orderItem->setImageUrl('');
+            $orderItem->setItemUrl('');
             $itemCollection->append($orderItem);
         }
 
@@ -234,7 +236,8 @@ class PaymentHelper
             $orderItem->setDiscountAmount(new Money(floatval($item['discount_amount']), $data['currency']));
         }
         $orderItem->setQuantity($item['quantity']);
-        $orderItem->setImageUrl($item['image_url'] ?? '');
+        $orderItem->setImageUrl((string) ($item['image_url'] ?? ''));
+        $orderItem->setItemUrl((string) ($item['item_url'] ?? ''));
 
         return $orderItem;
     }

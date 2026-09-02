@@ -182,9 +182,10 @@ class OrderAuthorization extends AbstractData
                 } catch (\Exception $exception) {
                     $this->log(["Error when sending authorise notification" => $exception->getMessage()], true);
                 }
-                $order->addStatusHistoryComment(
+                $order->addCommentToStatusHistory(
                     __('Notified customer about order #%1 was authorised.', $order->getIncrementId()),
-                    $this->tamaraConfig->getCheckoutAuthoriseStatus($order->getStoreId())
+                    $this->tamaraConfig->getCheckoutAuthoriseStatus($order->getStoreId()),
+                    false
                 )->setIsCustomerNotified(true);
             }
 

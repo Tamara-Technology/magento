@@ -50,8 +50,14 @@ define([
                     }, 300);
 
                     //render widget v2
+                    var checkoutCountry = window.checkoutConfig.payment.tamara.country_code;
+                    if (this.shippingAddress && this.shippingAddress() && this.shippingAddress().countryId) {
+                        checkoutCountry = this.shippingAddress().countryId;
+                    } else if (this.billingAddress && this.billingAddress() && this.billingAddress().countryId) {
+                        checkoutCountry = this.billingAddress().countryId;
+                    }
                     window.tamaraWidgetConfig = {
-                        "country" : window.checkoutConfig.payment.tamara.country_code,
+                        "country" : checkoutCountry,
                         "lang": window.checkoutConfig.payment.tamara.language,
                         "publicKey": window.checkoutConfig.payment.tamara.public_key
                     }

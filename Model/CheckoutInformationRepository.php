@@ -174,8 +174,9 @@ class CheckoutInformationRepository implements \Tamara\Checkout\Api\CheckoutInfo
                 $this->tamaraOrderRepository->save($tamaraOrder);
                 try {
                     // Add comment to order history
-                    $magentoOrder->addStatusHistoryComment(
+                    $magentoOrder->addCommentToStatusHistory(
                         __('Tamara - checkout session was created, order id: ' . $response['order_id']),
+                        false,
                         false
                     );
                     $this->orderRepository->save($magentoOrder);

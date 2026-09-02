@@ -68,7 +68,7 @@
                 <model>Tamara\Checkout\Model\PayByInstalments</model>
                 <order_status>pending</order_status>
                 <payment_action>authorize</payment_action>
-                <title>Split payments without interest or hidden fees with Tamara</title>
+                <title>Tamara</title>
                 <currency>SAR</currency>
                 <order_history_use_phone>1</order_history_use_phone>
                 <can_authorize>1</can_authorize>

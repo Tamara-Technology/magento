@@ -631,7 +631,6 @@
             <argument name="pool" xsi:type="object">Tamara\Checkout\Ui\DataProvider\Whitelist\Modifier\Pool</argument>
         </arguments>
     </type>
-
     <virtualType name="Tamara\Checkout\Ui\DataProvider\Whitelist\Modifier\Pool" type="Magento\Ui\DataProvider\Modifier\Pool">
         <arguments>
             <argument name="modifiers" xsi:type="array">
