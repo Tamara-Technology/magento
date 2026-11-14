@@ -75,33 +75,43 @@ class Router implements RouterInterface
         $identifier = trim($request->getPathInfo(), '/');
         $urlParts = explode('/', $identifier);
 
-        if ($this->isCorrectUrl($urlParts)) {
-            $request->setModuleName(self::MODULE_NAME)
-                ->setControllerName(self::CONTROLLER_NAME)
-                ->setActionName($urlParts[3])
-                ->setParam('order_id', $urlParts[2]);
-
-            $request->setAlias(\Magento\Framework\Url::REWRITE_REQUEST_PATH_ALIAS, $identifier);
-            return $this->actionFactory->create(\Magento\Framework\App\Action\Forward::class);
+        $offset = $this->resolveOffset($urlParts);
+        if ($offset === null) {
+            return;
         }
-        return;
+
+        $request->setModuleName(self::MODULE_NAME)
+            ->setControllerName(self::CONTROLLER_NAME)
+            ->setActionName($urlParts[$offset + 3])
+            ->setParam('order_id', $urlParts[$offset + 2]);
+
+        $request->setAlias(\Magento\Framework\Url::REWRITE_REQUEST_PATH_ALIAS, $identifier);
+        return $this->actionFactory->create(\Magento\Framework\App\Action\Forward::class);
     }
 
-    private function isCorrectUrl($urlParts): bool
+    private function resolveOffset(array $urlParts): ?int
     {
-        if (empty($urlParts[0]) || empty($urlParts[1]) || empty($urlParts[2]) || empty($urlParts[3])) {
+        foreach ([0, 1] as $offset) {
+            if ($this->isCorrectUrl($urlParts, $offset)) {
+                return $offset;
+            }
+        }
+
+        return null;
+    }
+
+    private function isCorrectUrl(array $urlParts, int $offset): bool
+    {
+        $parts = array_slice($urlParts, $offset, 4);
+        if (count($parts) < 4 || in_array('', $parts, true)) {
             return false;
         }
 
-        if ($urlParts[0] !== self::MODULE_NAME
-            || $urlParts[1] !== self::CONTROLLER_NAME
-            || (!is_numeric($urlParts[2]))
-            || (!in_array($urlParts[3], $this->actions, true))
-        ) {
-            return false;
-        }
-
-        return true;
+        return $parts[0] === self::MODULE_NAME
+            && $parts[1] === self::CONTROLLER_NAME
+            && $parts[2] !== '0'
+            && is_numeric($parts[2])
+            && in_array($parts[3], $this->actions, true);
     }
 
 }
