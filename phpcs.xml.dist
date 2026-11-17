@@ -8,5 +8,8 @@
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/Test/*/_files/*</exclude-pattern>
-    <rule ref="Magento2"/>
+    <rule ref="Magento2">
+        <!-- Moving InstallData/UpgradeData scripts to patches is a data migration, not a coding-standard fix. -->
+        <exclude name="Magento2.Legacy.InstallUpgrade"/>
+    </rule>
 </ruleset>
