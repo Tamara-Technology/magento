@@ -39,19 +39,19 @@ class OrderReconciliationTest extends TestCase
     private $client;
     private $service;
 
-    protected function setUp(): void
+    private function createService(array $mockClasses = []): void
     {
-        $this->adapterFactory = $this->createMock(TamaraAdapterFactory::class);
-        $this->authorization = $this->createMock(OrderAuthorization::class);
-        $this->orderRepository = $this->createMock(OrderRepositoryInterface::class);
-        $this->tamaraOrderRepository = $this->createMock(TamaraOrderRepositoryInterface::class);
-        $this->orderManagement = $this->createMock(OrderManagementInterface::class);
-        $this->config = $this->createMock(BaseConfig::class);
+        $this->adapterFactory = $this->createStub(TamaraAdapterFactory::class);
+        $this->authorization = $this->createDouble(OrderAuthorization::class, $mockClasses);
+        $this->orderRepository = $this->createStub(OrderRepositoryInterface::class);
+        $this->tamaraOrderRepository = $this->createDouble(TamaraOrderRepositoryInterface::class, $mockClasses);
+        $this->orderManagement = $this->createDouble(OrderManagementInterface::class, $mockClasses);
+        $this->config = $this->createDouble(BaseConfig::class, $mockClasses);
         $this->registry = new Registry();
-        $this->helper = $this->createMock(AbstractData::class);
-        $this->client = $this->createMock(Client::class);
+        $this->helper = $this->createStub(AbstractData::class);
+        $this->client = $this->createDouble(Client::class, $mockClasses);
 
-        $adapter = $this->createMock(TamaraAdapter::class);
+        $adapter = $this->createStub(TamaraAdapter::class);
         $adapter->method('getClient')->willReturn($this->client);
         $this->adapterFactory->method('create')->willReturn($adapter);
 
@@ -67,12 +67,16 @@ class OrderReconciliationTest extends TestCase
         );
     }
 
+    /**
+     * @dataProvider pendingStateProvider
+     */
     #[DataProvider('pendingStateProvider')]
     public function testRecognizesCurrentAndLegacyPendingStates($state, $expected)
     {
-        $order = $this->createMock(Order::class);
+        $this->createService();
+        $order = $this->createStub(Order::class);
         $order->method('getState')->willReturn($state);
-        $tamaraOrder = $this->createMock(TamaraOrder::class);
+        $tamaraOrder = $this->createStub(TamaraOrder::class);
         $tamaraOrder->method('getIsAuthorised')->willReturn(0);
 
         self::assertSame($expected, $this->service->isPendingOrder($order, $tamaraOrder));
@@ -89,9 +93,10 @@ class OrderReconciliationTest extends TestCase
 
     public function testRepeatedReconciliationSkipsAnAlreadyAuthorisedOrder()
     {
-        $order = $this->createMock(Order::class);
+        $this->createService([Client::class]);
+        $order = $this->createStub(Order::class);
         $order->method('getState')->willReturn(Order::STATE_PROCESSING);
-        $tamaraOrder = $this->createMock(TamaraOrder::class);
+        $tamaraOrder = $this->createStub(TamaraOrder::class);
         $tamaraOrder->method('getIsAuthorised')->willReturn(1);
 
         $this->client->expects(self::never())->method('getOrder');
@@ -102,8 +107,9 @@ class OrderReconciliationTest extends TestCase
 
     public function testFallsBackToReferenceAndPersistsRefreshedMetadata()
     {
-        list($order, $tamaraOrder, $payment) = $this->createPendingOrder();
-        $failedResponse = $this->createMock(GetOrderResponse::class);
+        $this->createService([Client::class]);
+        list($order, $tamaraOrder, $payment) = $this->createPendingOrder(false, true);
+        $failedResponse = $this->createStub(GetOrderResponse::class);
         $failedResponse->method('isSuccess')->willReturn(false);
         $failedResponse->method('getStatusCode')->willReturn(404);
         $remoteOrder = $this->createRemoteOrder('new');
@@ -134,8 +140,9 @@ class OrderReconciliationTest extends TestCase
 
     public function testFailedLookupDefersRetryWithoutSkipping()
     {
+        $this->createService([TamaraOrderRepositoryInterface::class]);
         list($order, $tamaraOrder) = $this->createPendingOrder();
-        $failedResponse = $this->createMock(GetOrderResponse::class);
+        $failedResponse = $this->createStub(GetOrderResponse::class);
         $failedResponse->method('isSuccess')->willReturn(false);
         $failedResponse->method('getStatusCode')->willReturn(503);
 
@@ -150,6 +157,7 @@ class OrderReconciliationTest extends TestCase
 
     public function testApprovedOrderCallsTamaraAuthorisation()
     {
+        $this->createService([OrderAuthorization::class]);
         list($order, $tamaraOrder) = $this->createPendingOrder();
         $remoteOrder = $this->createRemoteOrder('approved');
         $this->client->method('getOrder')->willReturn($remoteOrder);
@@ -163,6 +171,7 @@ class OrderReconciliationTest extends TestCase
 
     public function testAlreadyAuthorisedOrderOnlyAppliesLocalAuthorisation()
     {
+        $this->createService([OrderAuthorization::class]);
         list($order, $tamaraOrder) = $this->createPendingOrder();
         $remoteOrder = $this->createRemoteOrder('authorised');
         $this->client->method('getOrder')->willReturn($remoteOrder);
@@ -175,13 +184,17 @@ class OrderReconciliationTest extends TestCase
         self::assertSame('authorised', $this->service->reconcile($order, $tamaraOrder));
     }
 
+    /**
+     * @dataProvider terminalStatusProvider
+     */
     #[DataProvider('terminalStatusProvider')]
     public function testTerminalOrderUsesConfiguredStatus($remoteStatus, $configMethod, $magentoStatus)
     {
-        list($order, $tamaraOrder) = $this->createPendingOrder();
+        $this->createService([OrderManagementInterface::class, BaseConfig::class]);
+        list($order, $tamaraOrder) = $this->createPendingOrder(true);
         $remoteOrder = $this->createRemoteOrder($remoteStatus);
         $this->client->method('getOrder')->willReturn($remoteOrder);
-        $this->config->method($configMethod)->with(2)->willReturn($magentoStatus);
+        $this->config->expects(self::once())->method($configMethod)->with(2)->willReturn($magentoStatus);
 
         $this->orderManagement->expects(self::once())->method('cancel')->with(10);
         $order->expects(self::once())->method('setStatus')->with($magentoStatus)->willReturnSelf();
@@ -201,17 +214,21 @@ class OrderReconciliationTest extends TestCase
         ];
     }
 
+    /**
+     * @dataProvider capturedAmountProvider
+     */
     #[DataProvider('capturedAmountProvider')]
     public function testCapturedOrderAddsCaptureIdsAndCaptureNote($capturedValue, $captureType)
     {
-        list($order, $tamaraOrder) = $this->createPendingOrder();
+        $this->createService([OrderAuthorization::class, BaseConfig::class]);
+        list($order, $tamaraOrder) = $this->createPendingOrder(true);
         $remoteOrder = $this->createRemoteOrder('fully_captured', ['capture-1', 'capture-2']);
         $this->client->method('getOrder')->willReturn($remoteOrder);
-        $this->config->method('getCheckoutAuthoriseStatus')->with(2)->willReturn('tamara_authorised');
+        $this->config->expects(self::once())->method('getCheckoutAuthoriseStatus')->with(2)->willReturn('tamara_authorised');
 
-        $capturedAmount = $this->createMock(Money::class);
+        $capturedAmount = $this->createStub(Money::class);
         $capturedAmount->method('getAmount')->willReturn($capturedValue);
-        $totalAmount = $this->createMock(Money::class);
+        $totalAmount = $this->createStub(Money::class);
         $totalAmount->method('getAmount')->willReturn(100.0);
         $remoteOrder->method('getCapturedAmount')->willReturn($capturedAmount);
         $remoteOrder->method('getTotalAmount')->willReturn($totalAmount);
@@ -254,12 +271,13 @@ class OrderReconciliationTest extends TestCase
 
     public function testCapturedOrderRemainsPendingWhenLocalAuthorisationFails()
     {
-        list($order, $tamaraOrder) = $this->createPendingOrder();
+        $this->createService();
+        list($order, $tamaraOrder) = $this->createPendingOrder(true);
         $remoteOrder = $this->createRemoteOrder('fully_captured', ['capture-1']);
         $this->client->method('getOrder')->willReturn($remoteOrder);
-        $capturedAmount = $this->createMock(Money::class);
+        $capturedAmount = $this->createStub(Money::class);
         $capturedAmount->method('getAmount')->willReturn(100.0);
-        $totalAmount = $this->createMock(Money::class);
+        $totalAmount = $this->createStub(Money::class);
         $totalAmount->method('getAmount')->willReturn(100.0);
         $remoteOrder->method('getCapturedAmount')->willReturn($capturedAmount);
         $remoteOrder->method('getTotalAmount')->willReturn($totalAmount);
@@ -271,10 +289,15 @@ class OrderReconciliationTest extends TestCase
         self::assertSame('fully_captured', $this->service->reconcile($order, $tamaraOrder));
     }
 
-    private function createPendingOrder()
+    private function createDouble($class, array $mockClasses)
     {
-        $payment = $this->createMock(Payment::class);
-        $order = $this->createMock(Order::class);
+        return in_array($class, $mockClasses, true) ? $this->createMock($class) : $this->createStub($class);
+    }
+
+    private function createPendingOrder($mockOrder = false, $mockPayment = false)
+    {
+        $payment = $mockPayment ? $this->createMock(Payment::class) : $this->createStub(Payment::class);
+        $order = $mockOrder ? $this->createMock(Order::class) : $this->createStub(Order::class);
         $order->method('getId')->willReturn(10);
         $order->method('getStoreId')->willReturn(2);
         $order->method('getIncrementId')->willReturn('100000010');
@@ -284,21 +307,21 @@ class OrderReconciliationTest extends TestCase
 
         $tamaraOrder = $this->createPartialMock(
             TamaraOrder::class,
-            ['getIsAuthorised', 'getTamaraOrderId']
+            ['getTamaraOrderId']
         );
-        $tamaraOrder->method('getIsAuthorised')->willReturn(0);
-        $tamaraOrder->method('getTamaraOrderId')->willReturn('tamara-123');
+        $tamaraOrder->setIsAuthorised(0);
+        $tamaraOrder->expects(self::atLeastOnce())->method('getTamaraOrderId')->willReturn('tamara-123');
 
         return [$order, $tamaraOrder, $payment];
     }
 
     private function createRemoteOrder($status, array $captureIds = [])
     {
-        $transactions = $this->createMock(Transactions::class);
-        $captureCollection = $this->createMock(CaptureCollection::class);
+        $transactions = $this->createStub(Transactions::class);
+        $captureCollection = $this->createStub(CaptureCollection::class);
         $captureItems = [];
         foreach ($captureIds as $captureId) {
-            $captureItem = $this->createMock(CaptureItem::class);
+            $captureItem = $this->createStub(CaptureItem::class);
             $captureItem->method('getCaptureId')->willReturn($captureId);
             $captureItems[] = $captureItem;
         }
@@ -307,7 +330,7 @@ class OrderReconciliationTest extends TestCase
         $transactions->method('getCancels')->willReturn(CancelCollection::create([]));
         $transactions->method('getRefunds')->willReturn(RefundCollection::create([]));
 
-        $remoteOrder = $this->createMock(GetOrderResponse::class);
+        $remoteOrder = $this->createStub(GetOrderResponse::class);
         $remoteOrder->method('isSuccess')->willReturn(true);
         $remoteOrder->method('getStatus')->willReturn($status);
         $remoteOrder->method('getOrderId')->willReturn('tamara-123');

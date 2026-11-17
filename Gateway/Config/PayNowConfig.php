@@ -2,7 +2,6 @@
 namespace Tamara\Checkout\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Config\Config as MagentoPaymentConfig;
 
 class PayNowConfig extends MagentoPaymentConfig
@@ -14,13 +13,11 @@ class PayNowConfig extends MagentoPaymentConfig
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param Json $serializer
      * @param null|string $methodCode
      * @param string $pathPattern
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        Json $serializer,
         $methodCode = self::PAYMENT_TYPE_CODE,
         $pathPattern = MagentoPaymentConfig::DEFAULT_PATH_PATTERN
     ) {

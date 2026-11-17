@@ -25,6 +25,11 @@ class Invoice extends \Tamara\Checkout\Helper\AbstractData
      */
     private $dbTransactionFactory;
 
+    /**
+     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
     public function __construct(
         Context $context,
         \Magento\Framework\Locale\Resolver $locale,
@@ -35,8 +40,10 @@ class Invoice extends \Tamara\Checkout\Helper\AbstractData
         \Magento\Sales\Model\Service\InvoiceService $invoiceService,
         \Magento\Framework\DB\TransactionFactory $dbTransactionFactory,
         \Magento\Sales\Model\Order\Email\Sender\InvoiceSender $invoiceSender,
-        \Tamara\Checkout\Model\Adapter\TamaraAdapterFactory $tamaraAdapterFactory
+        \Tamara\Checkout\Model\Adapter\TamaraAdapterFactory $tamaraAdapterFactory,
+        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
     ) {
+        $this->invoiceRepository = $invoiceRepository;
         $this->magentoOrderRepository = $magentoOrderRepository;
         $this->invoiceService = $invoiceService;
         $this->dbTransactionFactory = $dbTransactionFactory;
@@ -55,7 +62,7 @@ class Invoice extends \Tamara\Checkout\Helper\AbstractData
             if ($order->canInvoice()) {
                 $invoice = $this->invoiceService->prepareInvoice($order);
                 $invoice->register();
-                $invoice->save();
+                $this->invoiceRepository->save($invoice);
                 $transactionSave = $this->dbTransactionFactory->create()->addObject(
                     $invoice
                 )->addObject(
