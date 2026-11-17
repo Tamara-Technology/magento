@@ -2,7 +2,6 @@
 namespace Tamara\Checkout\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Config\Config as MagentoPaymentConfig;
 
 class InstalmentConfig extends MagentoPaymentConfig
@@ -31,14 +30,12 @@ class InstalmentConfig extends MagentoPaymentConfig
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param Json $serializer
      * @param \Tamara\Checkout\Helper\AbstractData $tamaraHelper
      * @param string $pathPattern
      * @param int $numberOfInstallments
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        Json $serializer,
         \Tamara\Checkout\Helper\AbstractData $tamaraHelper,
         $pathPattern = MagentoPaymentConfig::DEFAULT_PATH_PATTERN,
         $numberOfInstallments = 3

@@ -2,7 +2,6 @@
 namespace Tamara\Checkout\Gateway\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Payment\Gateway\Config\Config as MagentoPaymentConfig;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -34,14 +33,12 @@ class BaseConfig extends MagentoPaymentConfig
 
     /**
      * @param ScopeConfigInterface $scopeConfig
-     * @param Json $serializer
      * @param StoreManagerInterface $storeManager
      * @param null|string $methodCode
      * @param string $pathPattern
      */
     public function __construct(
         ScopeConfigInterface $scopeConfig,
-        Json $serializer,
         StoreManagerInterface $storeManager,
         \Magento\Framework\App\RequestInterface $request,
         \Tamara\Checkout\Helper\Core $tamaraCore,

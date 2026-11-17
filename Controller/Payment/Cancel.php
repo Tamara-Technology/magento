@@ -36,6 +36,11 @@ class Cancel extends Action
 
     private $tamaraAdapterFactory;
 
+    /**
+     * @var \Magento\Sales\Model\ResourceModel\Order
+     */
+    private $orderResource;
+
     public function __construct(
         Context $context,
         PageFactory $pageFactory,
@@ -46,8 +51,10 @@ class Cancel extends Action
         \Magento\Framework\Registry $coreRegistry,
         BaseConfig $config,
         TamaraOrderRepository $tamaraOrderRepository,
-        \Tamara\Checkout\Model\Adapter\TamaraAdapterFactory $tamaraAdapterFactory
+        \Tamara\Checkout\Model\Adapter\TamaraAdapterFactory $tamaraAdapterFactory,
+        \Magento\Sales\Model\ResourceModel\Order $orderResource
     ) {
+        $this->orderResource = $orderResource;
         $this->pageFactory = $pageFactory;
         $this->cartHelper = $cartHelper;
         $this->orderRepository = $orderRepository;
@@ -113,7 +120,7 @@ class Cancel extends Action
                     $this->orderManagement->cancel($order->getEntityId());
                     $order->setState(Order::STATE_CANCELED)->setStatus($this->config->getCheckoutCancelStatus($order->getStoreId()));
                     $order->addCommentToStatusHistory(__('Tamara - order was canceled by the customer'), false, false);
-                    $order->getResource()->save($order);
+                    $this->orderResource->save($order);
                 }
             } catch (\Exception $e) {
                 /**

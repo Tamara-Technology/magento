@@ -123,6 +123,11 @@ class TamaraAdapter
 
     protected $tamaraOrderAuthorizationHelper;
 
+    /**
+     * @var \Magento\Sales\Model\ResourceModel\Order
+     */
+    private $orderResource;
+
     public function __construct(
         $apiUrl,
         $merchantToken,
@@ -143,9 +148,11 @@ class TamaraAdapter
         \Tamara\Checkout\Helper\Invoice $tamaraInvoiceHelper,
         \Tamara\Checkout\Helper\Transaction $tamaraTransactionHelper,
         \Magento\Framework\App\CacheInterface $magentoCache,
-        \Tamara\Checkout\Helper\OrderAuthorization $tamaraOrderAuthorizationHelper
+        \Tamara\Checkout\Helper\OrderAuthorization $tamaraOrderAuthorizationHelper,
+        \Magento\Sales\Model\ResourceModel\Order $orderResource
     )
     {
+        $this->orderResource = $orderResource;
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->notificationService = NotificationService::create($notificationToken);
@@ -664,7 +671,7 @@ class TamaraAdapter
             }
             $comment = sprintf('Tamara - order was %s by webhook', $eventType);
             $mageOrder->addCommentToStatusHistory(__($comment), false, false);
-            $mageOrder->getResource()->save($mageOrder);
+            $this->orderResource->save($mageOrder);
 
         } catch (\Exception $exception) {
             $this->logger->debug(["Tamara - error when process webhook" => $exception->getMessage()], null, true);
